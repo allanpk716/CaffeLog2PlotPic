@@ -4,6 +4,11 @@ Base on Caffe\tools\extra\parse_log.py
 
 Caffe Train Log 2 Plot And Save PNG
 
-Run Log2Plot.bat and drag *.log into it.
+How to use:
 
-One *.log one Time, and it will ask you again.
+  Run Log2Plot.bat
+  
+  LogFilePath:  Drag *.log into it.
+  refresh:      Input 0 Draw Once,Input 1 Watch Loop (60s)
+  
+  One *.log one Time, and it will ask you again.
