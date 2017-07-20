@@ -51,7 +51,7 @@ def parse_log(path_to_log):
             try:
                 time = extract_seconds.extract_datetime_from_line(line,
                                                                   logfile_year)
-            except ValueError:
+            except:
                 # Skip lines with bad formatting, for example when resuming solver
                 continue
 
