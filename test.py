@@ -27,41 +27,51 @@ def process(logfilename, output_dir, refresh = 0):
     ax1.set_xlabel(titile_1)
     ax1.set_ylabel(titile_2)
     ax2.set_ylabel(titile_3)
-    # 第一次读取
-    train_dict_list, test_dict_list = parseLog.parse_log(logfilename)
-    parseLog.save_csv_files(logfilename, output_dir, train_dict_list,
-                   test_dict_list)
-    train_log = pd.read_csv(logfilename + ".train")
-    test_log = pd.read_csv(logfilename + ".test")
-
-    l1,=ax2.plot(train_log["NumIters"], train_log["loss"], color='b', label=titile_2)
-    l2,=ax2.plot(test_log["NumIters"], test_log["loss"], color = 'g', label=titile_1)
-    l3,=ax1.plot(test_log["NumIters"], test_log["accuracy"], color = 'r', label=titile_3)
-
-    plt.legend([l1, l2, l3],[titile_2, titile_1, titile_3],loc="upper left") 
-    # ax1.legend(loc="upper left")
-    # ax2.legend(loc="upper left")
 
     fig.canvas.set_window_title(logfilename)
-
-    if refresh == 0:
-        plt.savefig(logfilename + ".png")    
-        plt.show()
 
     bFirstTime = True
 
     while refresh > 0:
         print 'Refresh at ' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         if bFirstTime == True:
-            plt.pause(5)
+            # 如果解析不出来 csv 文件，那么就继续等待
+            train_dict_list, test_dict_list = parseLog.parse_log(logfilename)
+            parseLog.save_csv_files(logfilename, output_dir, train_dict_list,
+                                test_dict_list)
+            if os.path.isfile(logfilename + ".train") == False or os.path.isfile(logfilename + ".test") == False:
+                print 'Read Log 2 CSV fail at ' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                plt.pause(60)
+                continue
 
+            train_log = pd.read_csv(logfilename + ".train")
+            test_log = pd.read_csv(logfilename + ".test")
+
+            l1,=ax2.plot(train_log["NumIters"], train_log["loss"], color='b', label=titile_2)
+            l2,=ax2.plot(test_log["NumIters"], test_log["loss"], color = 'g', label=titile_1)
+            l3,=ax1.plot(test_log["NumIters"], test_log["accuracy"], color = 'r', label=titile_3)
+
+            plt.legend([l1, l2, l3],[titile_2, titile_1, titile_3],loc="upper left") 
+
+            # 如果只是想看一次图
+            if refresh == 0:
+                plt.savefig(logfilename + ".png")    
+                plt.show()
+                break
+
+            bFirstTime = False
+            plt.pause(60)
+            continue
+
+        # 移除原有的线
         l1.remove()
         l2.remove()
         l3.remove()
-
+        # 重新读取绘制
         train_dict_list, test_dict_list = parseLog.parse_log(logfilename)
         parseLog.save_csv_files(logfilename, output_dir, train_dict_list,
-                            test_dict_list)
+                                test_dict_list)
+
         train_log = pd.read_csv(logfilename + ".train")
         test_log = pd.read_csv(logfilename + ".test")
 
@@ -69,10 +79,7 @@ def process(logfilename, output_dir, refresh = 0):
         l2,=ax2.plot(test_log["NumIters"], test_log["loss"], color = 'g', label=titile_1)
         l3,=ax1.plot(test_log["NumIters"], test_log["accuracy"], color = 'r', label=titile_3)
 
-        if bFirstTime == True:
-            bFirstTime = False
-        else:
-            plt.pause(5)
+        plt.pause(5)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
