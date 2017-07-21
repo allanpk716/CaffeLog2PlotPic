@@ -32,7 +32,7 @@ def process(logfilename, output_dir, refresh = 0):
 
     bFirstTime = True
 
-    while refresh > 0:
+    while True:
         print 'Refresh at ' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         if bFirstTime == True:
             # 如果解析不出来 csv 文件，那么就继续等待
@@ -43,22 +43,18 @@ def process(logfilename, output_dir, refresh = 0):
                 print 'Read Log 2 CSV fail at ' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 plt.pause(60)
                 continue
-
             train_log = pd.read_csv(logfilename + ".train")
             test_log = pd.read_csv(logfilename + ".test")
 
             l1,=ax2.plot(train_log["NumIters"], train_log["loss"], color='b', label=titile_2)
             l2,=ax2.plot(test_log["NumIters"], test_log["loss"], color = 'g', label=titile_1)
             l3,=ax1.plot(test_log["NumIters"], test_log["accuracy"], color = 'r', label=titile_3)
-
             plt.legend([l1, l2, l3],[titile_2, titile_1, titile_3],loc="upper left") 
-
             # 如果只是想看一次图
             if refresh == 0:
                 plt.savefig(logfilename + ".png")    
                 plt.show()
                 break
-
             bFirstTime = False
             plt.pause(60)
             continue
