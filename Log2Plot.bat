@@ -10,9 +10,7 @@ set /p refresh=refresh:
 
 call :show %LogFilePath%
 
-python parse_log.py %LogFilePath% %str2%
-
-python test.py %LogFilePath% %refresh%
+python test.py %LogFilePath% %str2% %refresh%
 
 pause
 

@@ -10,8 +10,9 @@ import sys
 import argparse
 import time
 import datetime
+import parse_log as parseLog
 
-def process(logfilename, refresh = 0):
+def process(logfilename, output_dir, refresh = 0):
 
     titile_1 = "test loss"
     titile_2 = "train loss"
@@ -19,7 +20,7 @@ def process(logfilename, refresh = 0):
 
     if refresh > 0:
         plt.ion()
-            
+    
     fig, ax1 = plt.subplots(figsize=(8, 6))
     ax2 = ax1.twinx()
 
@@ -27,12 +28,15 @@ def process(logfilename, refresh = 0):
     ax1.set_ylabel(titile_2)
     ax2.set_ylabel(titile_3)
     # 第一次读取
+    train_dict_list, test_dict_list = parseLog.parse_log(logfilename)
+    parseLog.save_csv_files(logfilename, output_dir, train_dict_list,
+                   test_dict_list)
     train_log = pd.read_csv(logfilename + ".train")
     test_log = pd.read_csv(logfilename + ".test")
 
-    l1,=ax1.plot(train_log["NumIters"], train_log["loss"], color='b', label=titile_2)
-    l2,=ax1.plot(test_log["NumIters"], test_log["loss"], color = 'g', label=titile_1)
-    l3,=ax2.plot(test_log["NumIters"], test_log["accuracy"], color = 'r', label=titile_3)
+    l1,=ax2.plot(train_log["NumIters"], train_log["loss"], color='b', label=titile_2)
+    l2,=ax2.plot(test_log["NumIters"], test_log["loss"], color = 'g', label=titile_1)
+    l3,=ax1.plot(test_log["NumIters"], test_log["accuracy"], color = 'r', label=titile_3)
 
     plt.legend([l1, l2, l3],[titile_2, titile_1, titile_3],loc="upper left") 
     # ax1.legend(loc="upper left")
@@ -49,28 +53,32 @@ def process(logfilename, refresh = 0):
     while refresh > 0:
         print 'Refresh at ' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         if bFirstTime == True:
-            plt.pause(60)
+            plt.pause(5)
 
-        ax1.lines.pop(0)
-        ax1.lines.pop(0)
-        ax2.lines.pop(0)
+        l1.remove()
+        l2.remove()
+        l3.remove()
 
+        train_dict_list, test_dict_list = parseLog.parse_log(logfilename)
+        parseLog.save_csv_files(logfilename, output_dir, train_dict_list,
+                            test_dict_list)
         train_log = pd.read_csv(logfilename + ".train")
         test_log = pd.read_csv(logfilename + ".test")
 
-        l1,=ax1.plot(train_log["NumIters"], train_log["loss"], color='b')
-        l2,=ax1.plot(test_log["NumIters"], test_log["loss"], color = 'g')
-        l3,=ax2.plot(test_log["NumIters"], test_log["accuracy"], color = 'r')
+        l1,=ax2.plot(train_log["NumIters"], train_log["loss"], color='b', label=titile_2)
+        l2,=ax2.plot(test_log["NumIters"], test_log["loss"], color = 'g', label=titile_1)
+        l3,=ax1.plot(test_log["NumIters"], test_log["accuracy"], color = 'r', label=titile_3)
 
         if bFirstTime == True:
             bFirstTime = False
         else:
-            plt.pause(60)
+            plt.pause(5)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('log', help="log file path")
+    parser.add_argument('output_dir', help="output_dir path")
     parser.add_argument('refresh', help="refresh(>0) or plot once (==0)")
     args = parser.parse_args()
 
-    process(args.log, int(args.refresh))
+    process(args.log,args.output_dir, int(args.refresh))
