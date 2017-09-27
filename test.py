@@ -17,6 +17,12 @@ def process(logfilename, output_dir, refresh = 0):
     titile_1 = "test loss"
     titile_2 = "train loss"
     titile_3 = "test accuracy"
+    titile_4 = "test top1/acc"
+    titile_5 = "test top5/acc"
+
+    str_accName_org = "accuracy"
+    str_accName_1 = "top1/acc"
+    str_accName_5 = "top5/acc"
 
     if refresh > 0:
         plt.ion()
@@ -31,6 +37,8 @@ def process(logfilename, output_dir, refresh = 0):
     fig.canvas.set_window_title(logfilename)
 
     bFirstTime = True
+    # 是否只有一个 Acc 结果
+    bOneAcc = True
 
     while True:
         print 'Refresh at ' + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -46,10 +54,22 @@ def process(logfilename, output_dir, refresh = 0):
             train_log = pd.read_csv(logfilename + ".train")
             test_log = pd.read_csv(logfilename + ".test")
 
+            if str_accName_org in list(train_log):
+                bOneAcc = True
+            else:
+                bOneAcc = False                
+
             l1,=ax2.plot(train_log["NumIters"], train_log["loss"], color='b', label=titile_2)
             l2,=ax2.plot(test_log["NumIters"], test_log["loss"], color = 'g', label=titile_1)
-            l3,=ax1.plot(test_log["NumIters"], test_log["accuracy"], color = 'r', label=titile_3)
-            plt.legend([l1, l2, l3],[titile_2, titile_1, titile_3],loc="upper left") 
+
+            if bOneAcc == True:
+                l3,=ax1.plot(test_log["NumIters"], test_log[str_accName_org], color = 'r', label=titile_3)
+                plt.legend([l1, l2, l3],[titile_2, titile_1, titile_3],loc="upper left") 
+            else:
+                l3,=ax1.plot(test_log["NumIters"], test_log[str_accName_1], color = 'r', label=titile_4)
+                l4,=ax1.plot(test_log["NumIters"], test_log[str_accName_5], color = 'm', label=titile_5)
+                plt.legend([l1, l2, l3, l4],[titile_2, titile_1, titile_4, titile_5],loc="upper left") 
+            
             # 如果只是想看一次图
             if refresh == 0:
                 plt.savefig(logfilename + ".png")    
@@ -63,6 +83,10 @@ def process(logfilename, output_dir, refresh = 0):
         l1.remove()
         l2.remove()
         l3.remove()
+
+        if bOneAcc == False:
+            l4.remove()
+
         # 重新读取绘制
         train_dict_list, test_dict_list = parseLog.parse_log(logfilename)
         parseLog.save_csv_files(logfilename, output_dir, train_dict_list,
@@ -71,11 +95,23 @@ def process(logfilename, output_dir, refresh = 0):
         train_log = pd.read_csv(logfilename + ".train")
         test_log = pd.read_csv(logfilename + ".test")
 
+        if str_accName_org in list(train_log):
+            bOneAcc = True
+        else:
+            bOneAcc = False  
+
         l1,=ax2.plot(train_log["NumIters"], train_log["loss"], color='b', label=titile_2)
         l2,=ax2.plot(test_log["NumIters"], test_log["loss"], color = 'g', label=titile_1)
-        l3,=ax1.plot(test_log["NumIters"], test_log["accuracy"], color = 'r', label=titile_3)
 
-        plt.pause(5)
+        if bOneAcc == True:
+            l3,=ax1.plot(test_log["NumIters"], test_log[str_accName_org], color = 'r', label=titile_3)
+            plt.legend([l1, l2, l3],[titile_2, titile_1, titile_3],loc="upper left") 
+        else:
+            l3,=ax1.plot(test_log["NumIters"], test_log[str_accName_1], color = 'r', label=titile_4)
+            l4,=ax1.plot(test_log["NumIters"], test_log[str_accName_5], color = 'm', label=titile_5)
+            plt.legend([l1, l2, l3, l4],[titile_2, titile_1, titile_4, titile_5],loc="upper left") 
+
+        plt.pause(60)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
