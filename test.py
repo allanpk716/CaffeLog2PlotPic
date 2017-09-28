@@ -54,7 +54,7 @@ def process(logfilename, output_dir, refresh = 0):
             train_log = pd.read_csv(logfilename + ".train")
             test_log = pd.read_csv(logfilename + ".test")
 
-            if str_accName_org in list(train_log):
+            if str_accName_org in list(test_log):
                 bOneAcc = True
             else:
                 bOneAcc = False                
@@ -95,7 +95,7 @@ def process(logfilename, output_dir, refresh = 0):
         train_log = pd.read_csv(logfilename + ".train")
         test_log = pd.read_csv(logfilename + ".test")
 
-        if str_accName_org in list(train_log):
+        if str_accName_org in list(test_log):
             bOneAcc = True
         else:
             bOneAcc = False  
